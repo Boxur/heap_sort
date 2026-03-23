@@ -40,39 +40,52 @@ void heapSort(std::vector<int>& vec)
 	}
 }
 
-int partition(std::vector<int>& vec, int low, int high)
+void merge(std::vector<int>& vec, int left, int mid, int right)
 {
-	int pivot = vec[high];
-	int i = low - 1;
+	int n1 = mid - left + 1;
+	int n2 = right - mid;
 
-	for (int j = low; j < high; ++j)
+	std::vector<int> leftVec(n1);
+	std::vector<int> rightVec(n2);
+
+	for (int i = 0; i < n1; ++i)
+		leftVec[i] = vec[left + i];
+	for (int j = 0; j < n2; ++j)
+		rightVec[j] = vec[mid + 1 + j];
+
+	int i = 0, j = 0, k = left;
+
+	while (i < n1 && j < n2)
 	{
-		if (vec[j] <= pivot)
-		{
-			++i;
-			std::swap(vec[i], vec[j]);
-		}
+		if (leftVec[i] <= rightVec[j])
+			vec[k++] = leftVec[i++];
+		else
+			vec[k++] = rightVec[j++];
 	}
 
-	std::swap(vec[i + 1], vec[high]);
-	return i + 1;
+	while (i < n1)
+		vec[k++] = leftVec[i++];
+
+	while (j < n2)
+		vec[k++] = rightVec[j++];
 }
 
-void quickSortHelper(std::vector<int>& vec, int low, int high)
+void mergeSortHelper(std::vector<int>& vec, int left, int right)
 {
-	if (low < high)
+	if (left < right)
 	{
-		int pi = partition(vec, low, high);
-		quickSortHelper(vec, low, pi - 1);
-		quickSortHelper(vec, pi + 1, high);
+		int mid = left + (right - left) / 2;
+		mergeSortHelper(vec, left, mid);
+		mergeSortHelper(vec, mid + 1, right);
+		merge(vec, left, mid, right);
 	}
 }
 
-void quickSort(std::vector<int>& vec)
+void mergeSort(std::vector<int>& vec)
 {
 	if (vec.empty())
 		return;
-	quickSortHelper(vec, 0, static_cast<int>(vec.size()) - 1);
+	mergeSortHelper(vec, 0, static_cast<int>(vec.size()) - 1);
 }
 
 std::vector<int> generateRandomVector(int n, int min = 0, int max = 1000)
@@ -93,7 +106,7 @@ int main()
 	for (int n = 10000; n <= 1000000; n += 10000)
 	{
 		double heapTotal = 0.0;
-		double quickTotal = 0.0;
+		double mergeTotal = 0.0;
 
 		for (int r = 0; r < repetitions; ++r)
 		{
@@ -107,14 +120,14 @@ int main()
 			heapTotal += std::chrono::duration<double, std::milli>(end - start).count();
 
 			start = std::chrono::high_resolution_clock::now();
-			quickSort(vec2);
+			mergeSort(vec2);
 			end = std::chrono::high_resolution_clock::now();
-			quickTotal += std::chrono::duration<double, std::milli>(end - start).count();
+			mergeTotal += std::chrono::duration<double, std::milli>(end - start).count();
 		}
 
 		std::cout << std::setw(6) << n
 		          << std::setw(8) << std::fixed << std::setprecision(3) << heapTotal / repetitions
-		          << std::setw(8) << std::fixed << std::setprecision(3) << quickTotal / repetitions
+		          << std::setw(8) << std::fixed << std::setprecision(3) << mergeTotal / repetitions
 		          << std::endl;
 	}
 }
