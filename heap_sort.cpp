@@ -90,7 +90,7 @@ std::vector<int> generateRandomVector(int n, int min = 0, int max = 1000)
 int main()
 {
 	constexpr int repetitions = 5;
-	for (int n = 10000; n <= 100000; n += 10000)
+	for (int n = 10000; n <= 1000000; n += 10000)
 	{
 		double heapTotal = 0.0;
 		double quickTotal = 0.0;
